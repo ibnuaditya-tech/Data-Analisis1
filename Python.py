@@ -24,6 +24,7 @@ day_df.info()
 day_df.describe()
 day_df.isna().sum()
 day_df.duplicated().sum()
+st.write("Statistik perhari")
 st.write(day_df.describe())
 
 #cleaning
@@ -64,4 +65,5 @@ sns.barplot(data=month_avg, x='month', y='cnt', hue='month', palette='coolwarm',
 ax2.set_title("Rata-rata penyewa berdasarkan bulan")
 ax2.set_xlabel("Bulan")
 ax2.set_ylabel("Rata-rata penyewa")
+
 st.pyplot(fig2)
