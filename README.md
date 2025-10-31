@@ -11,22 +11,19 @@ Project ini menampilkan visualisasi data harian dan bulanan, tren penyewaan, ser
 
 
 ## **Setup Environment**
-
-### **1. Dengan Anaconda**
-```bash
-conda create --name main-ds python=3.9
-conda activate main-ds
-pip install -r requirements.txt
-
-
-
-
+bash
 mkdir proyek_analisis_data
 cd proyek_analisis_data
+
+bash
+# Membuat Pipfile/Lockfile dan menginstal
 pipenv install
+
+# Masuk ke lingkungan virtual
 pipenv shell
+
+# Instal dari requirements.txt di dalam pipenv shell (jika diperlukan)
 pip install -r requirements.txt
 
-Run Streamlit App
-### **Run streamlit**
+bash
 streamlit run dashboard.py
