@@ -1,4 +1,4 @@
-# Dashboard Bike Sharing Dataset ✨
+# Dashboard Bike Sharing Dataset 
 
 Dashboard interaktif untuk analisis data penyewaan sepeda (Bike Sharing Dataset) menggunakan **Streamlit**.
 
