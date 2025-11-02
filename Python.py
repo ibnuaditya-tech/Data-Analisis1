@@ -1,15 +1,29 @@
-import pandas as pd
+# ===============================================
+# 📊 Analisis Data Penyewaan Sepeda - Streamlit
+# ===============================================
+
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+# Konfigurasi halaman
+st.set_page_config(page_title="Analisis Penyewaan Sepeda", layout="wide")
+st.title("🚲 Analisis Data Penyewaan Sepeda (Bike Sharing Dataset)")
+
+# =========================
+# 1. Load Dataset
+# =========================
 url_day = "https://raw.githubusercontent.com/ibnuaditya-tech/Data-Analisis1/refs/heads/main/day.csv"
 url_hour = "https://raw.githubusercontent.com/ibnuaditya-tech/Data-Analisis1/main/hour.csv"
 
 day_df = pd.read_csv(url_day)
 hour_df = pd.read_csv(url_hour)
 
+# =========================
+# 2. Preprocessing
+# =========================
 day_df.drop_duplicates(inplace=True)
 hour_df.drop_duplicates(inplace=True)
 
@@ -19,71 +33,104 @@ hour_df['dteday'] = pd.to_datetime(hour_df['dteday'])
 day_df['month'] = day_df['dteday'].dt.month
 hour_df['month'] = hour_df['dteday'].dt.month
 
+# Mapping musim
 season_map = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
 day_df['season'] = day_df['season'].map(season_map)
 hour_df['season'] = hour_df['season'].map(season_map)
 
-st.set_page_config(page_title="Bike sharing dashboard", layout="wide")
-st.title("Dashboard analisis data penyewaan sepeda")
-st.markdown("Interaktif dashboard untuk eksplorasi dataset penyewaan sepeda berdasarkan musim, bulan, dan jam.")
+# =========================
+# 3. Sidebar Filter
+# =========================
+st.sidebar.header("🔍 Filter Data")
 
-st.sidebar.header("Filter data")
+# Pilihan musim
+selected_season = st.sidebar.selectbox(
+    "Pilih musim:",
+    options=['All'] + sorted(day_df['season'].unique().tolist())
+)
 
-data_option = st.sidebar.radio("Pilih dataset:", ["Harian (day)", "Per jam (hour)"])
+# Pilihan bulan
+selected_month = st.sidebar.selectbox(
+    "Pilih bulan:",
+    options=['All'] + sorted(day_df['month'].unique().tolist())
+)
 
-seasons = ['All'] + sorted(day_df['season'].dropna().unique().tolist())
-selected_season = st.sidebar.selectbox("Pilih Musim:", seasons)
+# Pilihan jam
+selected_hour = st.sidebar.selectbox(
+    "Pilih jam:",
+    options=['All'] + sorted(hour_df['hr'].unique().tolist())
+)
 
-if data_option == "Harian (day)":
-    months = ['All'] + sorted(day_df['month'].unique().tolist())
-    selected_month = st.sidebar.selectbox("Pilih Bulan:", months)
+# =========================
+# 4. Filter Data
+# =========================
+filtered_day = day_df.copy()
+filtered_hour = hour_df.copy()
 
-if data_option == "Per Jam (hour)":
-    hours = ['All'] + sorted(hour_df['hr'].unique().tolist())
-    selected_hour = st.sidebar.selectbox("Pilih Jam:", hours)
+if selected_season != 'All':
+    filtered_day = filtered_day[filtered_day['season'] == selected_season]
+    filtered_hour = filtered_hour[filtered_hour['season'] == selected_season]
 
-if data_option == "Harian (day)":
-    filtered_df = day_df.copy()
-    if selected_season != 'All':
-        filtered_df = filtered_df[filtered_df['season'] == selected_season]
-    if selected_month != 'All':
-        filtered_df = filtered_df[filtered_df['month'] == selected_month]
-else:
-    filtered_df = hour_df.copy()
-    if selected_season != 'All':
-        filtered_df = filtered_df[filtered_df['season'] == selected_season]
-    if selected_hour != 'All':
-        filtered_df = filtered_df[filtered_df['hr'] == selected_hour]
+if selected_month != 'All':
+    filtered_day = filtered_day[filtered_day['month'] == int(selected_month)]
+    filtered_hour = filtered_hour[filtered_hour['month'] == int(selected_month)]
 
-st.subheader("Visualisasi Data")
+if selected_hour != 'All':
+    filtered_hour = filtered_hour[filtered_hour['hr'] == int(selected_hour)]
 
-col1, col2 = st.columns(2)
+# =========================
+# 5. Analisis dan Visualisasi
+# =========================
 
-with col1:
-    season_avg = filtered_df.groupby('season')['cnt'].mean().reset_index()
-    st.markdown("**Rata-rata penyewaan per musim**")
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.barplot(data=season_avg, x='season', y='cnt', palette='viridis', ax=ax)
-    ax.set_xlabel("Musim")
-    ax.set_ylabel("Rata-rata penyewaan")
-    st.pyplot(fig)
+# --- Rata-rata per musim ---
+season_avg = filtered_day.groupby('season')['cnt'].mean().reset_index()
 
-with col2:
-    if data_option == "Harian (day)":
-        month_avg = filtered_df.groupby('month')['cnt'].mean().reset_index()
-        st.markdown("**Rata-rata penyewaan per bulan**")
-        fig2, ax2 = plt.subplots(figsize=(6, 4))
-        sns.barplot(data=month_avg, x='month', y='cnt', palette='coolwarm', ax=ax2)
-        ax2.set_xlabel("Bulan")
-        ax2.set_ylabel("Rata-rata penyewaan")
-        st.pyplot(fig2)
-    else:
-        hour_avg = filtered_df.groupby('hr')['cnt'].mean().reset_index()
-        st.markdown("**Rata-rata penyewaan per jam**")
-        fig3, ax3 = plt.subplots(figsize=(6, 4))
-        sns.lineplot(data=hour_avg, x='hr', y='cnt', marker='o', ax=ax3)
-        ax3.set_xlabel("Jam (0–23)")
-        ax3.set_ylabel("Rata-rata penyewaan")
-        st.pyplot(fig3)
+# --- Rata-rata per bulan ---
+month_avg = filtered_day.groupby('month')['cnt'].mean().reset_index()
 
+# --- Rata-rata per jam ---
+hour_avg = filtered_hour.groupby('hr')['cnt'].mean().reset_index()
+
+# =========================
+# 6. Tampilkan Data
+# =========================
+st.subheader("📅 Statistik Dataset Harian")
+st.write(filtered_day.describe())
+
+# =========================
+# 7. Visualisasi
+# =========================
+
+sns.set(style="whitegrid")
+
+# Grafik per musim
+st.subheader("🌤️ Rata-rata Penyewa Berdasarkan Musim")
+fig1, ax1 = plt.subplots(figsize=(8, 4))
+sns.barplot(data=season_avg, x='season', y='cnt', palette='viridis', ax=ax1)
+ax1.set_title("Rata-rata jumlah penyewa berdasarkan musim", fontsize=14)
+ax1.set_xlabel("Musim")
+ax1.set_ylabel("Rata-rata penyewa")
+st.pyplot(fig1)
+
+# Grafik per bulan
+st.subheader("🗓️ Rata-rata Penyewa Berdasarkan Bulan")
+fig2, ax2 = plt.subplots(figsize=(8, 4))
+sns.barplot(data=month_avg, x='month', y='cnt', palette='coolwarm', ax=ax2)
+ax2.set_title("Rata-rata jumlah penyewa berdasarkan bulan", fontsize=14)
+ax2.set_xlabel("Bulan")
+ax2.set_ylabel("Rata-rata penyewa")
+st.pyplot(fig2)
+
+# Grafik per jam
+st.subheader("⏰ Rata-rata Penyewa Berdasarkan Jam")
+fig3, ax3 = plt.subplots(figsize=(8, 4))
+sns.lineplot(data=hour_avg, x='hr', y='cnt', marker='o', ax=ax3)
+ax3.set_title("Rata-rata jumlah penyewa berdasarkan jam", fontsize=14)
+ax3.set_xlabel("Jam")
+ax3.set_ylabel("Rata-rata penyewa")
+st.pyplot(fig3)
+
+# =========================
+# 8. Kesimpulan
+# =========================
 
