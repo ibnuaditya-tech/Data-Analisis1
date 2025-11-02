@@ -53,7 +53,7 @@ else:
     if selected_hour != 'All':
         filtered_df = filtered_df[filtered_df['hr'] == selected_hour]
 
-st.subheader("📊 Visualisasi Data")
+st.subheader("Visualisasi Data")
 
 col1, col2 = st.columns(2)
 
@@ -83,6 +83,7 @@ with col2:
         ax3.set_xlabel("Jam (0–23)")
         ax3.set_ylabel("Rata-rata Penyewaan")
         st.pyplot(fig3)
+
 
 
 
