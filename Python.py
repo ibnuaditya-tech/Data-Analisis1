@@ -113,21 +113,5 @@ with col2:
         ax3.set_ylabel("Rata-rata Penyewaan")
         st.pyplot(fig3)
 
-# ======================================================
-# INSIGHT
-# ======================================================
-st.markdown("---")
-st.subheader("📈 Insight Singkat")
 
-st.markdown("""
-- Aktivitas penyewaan sepeda cenderung **tinggi pada musim Fall dan Summer**.  
-- Pola penyewaan harian menunjukkan **lonjakan pada bulan pertengahan tahun**.  
-- Untuk data per jam, **jam sibuk biasanya sekitar jam 8 pagi dan 5 sore**, kemungkinan karena waktu berangkat dan pulang kerja.
-""")
 
-# ======================================================
-# TAMPILKAN DATASET YANG DIFILTER
-# ======================================================
-st.markdown("---")
-st.subheader("📋 Data yang Ditampilkan")
-st.dataframe(filtered_df)
